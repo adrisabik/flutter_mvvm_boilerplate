@@ -162,26 +162,27 @@ class _QuickActionsGrid extends StatelessWidget {
           mainAxisSpacing: AppSpacing.md,
           crossAxisSpacing: AppSpacing.md,
           childAspectRatio: 1.5,
-          children: const [
+          children: [
             _QuickActionCard(
+              icon: Icons.play_circle_outline,
+              title: 'Status Demo',
+              color: Colors.teal,
+              onTap: () => context.goNamed(RouteNames.example),
+            ),
+            const _QuickActionCard(
               icon: Icons.person_outline,
               title: 'Profile',
               color: Colors.blue,
             ),
-            _QuickActionCard(
+            const _QuickActionCard(
               icon: Icons.settings_outlined,
               title: 'Settings',
               color: Colors.orange,
             ),
-            _QuickActionCard(
+            const _QuickActionCard(
               icon: Icons.notifications_outlined,
               title: 'Notifications',
               color: Colors.purple,
-            ),
-            _QuickActionCard(
-              icon: Icons.help_outline,
-              title: 'Help',
-              color: Colors.green,
             ),
           ],
         ),
@@ -195,10 +196,12 @@ class _QuickActionCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.color,
+    this.onTap,
   });
   final IconData icon;
   final String title;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -206,9 +209,7 @@ class _QuickActionCard extends StatelessWidget {
 
     return Card(
       child: InkWell(
-        onTap: () {
-          // TODO: Navigate to respective screen
-        },
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
           padding: EdgeInsets.all(AppSpacing.md),

@@ -3,6 +3,7 @@ import 'package:flutter_mvvm_boilerplate/core/di/injection.dart';
 import 'package:flutter_mvvm_boilerplate/core/router/route_names.dart';
 import 'package:flutter_mvvm_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:flutter_mvvm_boilerplate/presentation/auth/pages/login_page.dart';
+import 'package:flutter_mvvm_boilerplate/presentation/example/pages/example_page.dart';
 import 'package:flutter_mvvm_boilerplate/presentation/home/pages/home_page.dart';
 import 'package:flutter_mvvm_boilerplate/presentation/splash/pages/splash_page.dart';
 import 'package:go_router/go_router.dart';
@@ -41,6 +42,13 @@ class AppRouter {
       name: RouteNames.home,
       path: RoutePaths.home,
       builder: (context, state) => const HomePage(),
+    ),
+
+    // Example Route (AppStatusHandler demo)
+    GoRoute(
+      name: RouteNames.example,
+      path: RoutePaths.example,
+      builder: (context, state) => const ExamplePage(),
     ),
   ];
 
