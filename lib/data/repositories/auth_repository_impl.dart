@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-
 import 'package:flutter_mvvm_boilerplate/core/error/exceptions.dart';
 import 'package:flutter_mvvm_boilerplate/core/error/failures.dart';
 import 'package:flutter_mvvm_boilerplate/core/network/dio_client.dart';
@@ -9,8 +8,10 @@ import 'package:flutter_mvvm_boilerplate/data/datasources/local/secure_storage_s
 import 'package:flutter_mvvm_boilerplate/domain/entities/user.dart';
 import 'package:flutter_mvvm_boilerplate/domain/repositories/auth_repository.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
 
 /// Implementation of AuthRepository using Dio for API calls.
+@LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._dioClient, this._storageService);
   final DioClient _dioClient;
