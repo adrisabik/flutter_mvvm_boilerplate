@@ -10,11 +10,11 @@ param(
 )
 
 if ($Coverage) {
-    Write-Host "🧪 Running tests with coverage..." -ForegroundColor Cyan
+    Write-Host "[LOG] Running tests with coverage..." -ForegroundColor Cyan
     flutter test --coverage $Path
-    Write-Host "📊 Coverage report generated at coverage/lcov.info" -ForegroundColor Green
+    Write-Host "[SUCCESS] Coverage report generated at coverage/lcov.info" -ForegroundColor Green
 } else {
-    Write-Host "🧪 Running tests..." -ForegroundColor Cyan
+    Write-Host "[LOG] Running tests..." -ForegroundColor Cyan
     if ($Path) {
         flutter test $Path
     } else {
@@ -22,4 +22,4 @@ if ($Coverage) {
     }
 }
 
-Write-Host "✅ Tests complete!" -ForegroundColor Green
+Write-Host "[SUCCESS] Tests complete!" -ForegroundColor Green

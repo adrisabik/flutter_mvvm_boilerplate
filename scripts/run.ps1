@@ -7,5 +7,5 @@ param(
     [string]$Flavor = "dev"
 )
 
-Write-Host "🚀 Running app with $Flavor flavor..." -ForegroundColor Cyan
+Write-Host "[LOG] Running app with $Flavor flavor..." -ForegroundColor Cyan
 flutter run --dart-define=FLAVOR=$Flavor

@@ -1,4 +1,4 @@
-# Flutter MVVM Boilerplate - Build APK (Windows PowerShell)
+# Flutter MVVM Boilerplate - Build Script (Windows PowerShell)
 # Run these commands from the project root directory
 
 param(
@@ -11,7 +11,7 @@ param(
     [string]$Target = "apk"
 )
 
-Write-Host "📦 Building $Target with $Flavor flavor..." -ForegroundColor Cyan
+Write-Host "[LOG] Building $Target with $Flavor flavor..." -ForegroundColor Cyan
 
 switch ($Target) {
     "apk" {
@@ -28,4 +28,4 @@ switch ($Target) {
     }
 }
 
-Write-Host "✅ Build complete!" -ForegroundColor Green
+Write-Host "[SUCCESS] Build complete!" -ForegroundColor Green

@@ -1,11 +1,11 @@
 # Flutter MVVM Boilerplate - Analyze & Format (Windows PowerShell)
 # Run these commands from the project root directory
 
-Write-Host "🔍 Analyzing code..." -ForegroundColor Cyan
+Write-Host "[LOG] Analyzing code..." -ForegroundColor Cyan
 flutter analyze
 
 Write-Host ""
-Write-Host "✨ Formatting code..." -ForegroundColor Cyan
+Write-Host "[LOG] Formatting code..." -ForegroundColor Cyan
 dart format lib test --set-exit-if-changed
 
-Write-Host "✅ Analysis and formatting complete!" -ForegroundColor Green
+Write-Host "[SUCCESS] Analysis and formatting complete!" -ForegroundColor Green

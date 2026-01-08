@@ -2,6 +2,6 @@
 # Run these commands from the project root directory
 
 # Generate code (freezed, json_serializable, injectable)
-Write-Host "🔧 Generating code..." -ForegroundColor Cyan
+Write-Host "[LOG] Generating code..." -ForegroundColor Cyan
 dart run build_runner build --delete-conflicting-outputs
-Write-Host "✅ Code generation complete!" -ForegroundColor Green
+Write-Host "[SUCCESS] Code generation complete!" -ForegroundColor Green
