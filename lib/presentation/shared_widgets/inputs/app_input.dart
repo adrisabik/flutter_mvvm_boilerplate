@@ -10,7 +10,6 @@ enum AppInputSize { small, medium, large }
 
 /// A dynamic, reusable text input component with configurable type, size, and validation.
 class AppInput extends StatefulWidget {
-
   const AppInput({
     this.label,
     this.hint,

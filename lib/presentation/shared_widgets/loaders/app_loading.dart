@@ -8,7 +8,6 @@ enum AppLoadingType { circular, linear, dots }
 
 /// A dynamic loading overlay component.
 class AppLoading extends StatelessWidget {
-
   const AppLoading({
     this.type = AppLoadingType.circular,
     this.message,
@@ -122,7 +121,6 @@ void unawaited(Future<void>? future) {}
 
 /// Animated dots loading indicator
 class _DotsLoading extends StatefulWidget {
-
   const _DotsLoading({required this.color, required this.size});
   final Color color;
   final double size;

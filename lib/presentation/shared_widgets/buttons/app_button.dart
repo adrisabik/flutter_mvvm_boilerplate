@@ -9,7 +9,6 @@ enum AppButtonSize { small, medium, large }
 
 /// A dynamic, reusable button component with configurable type, size, and icon.
 class AppButton extends StatelessWidget {
-
   const AppButton({
     required this.text,
     this.onPressed,

@@ -5,7 +5,6 @@ import 'package:shimmer/shimmer.dart';
 
 /// A shimmer loading placeholder widget for skeleton loading states.
 class AppShimmer extends StatelessWidget {
-
   const AppShimmer({this.width, this.height, this.borderRadius, super.key});
 
   /// Creates a rectangular shimmer
@@ -54,7 +53,6 @@ class AppShimmer extends StatelessWidget {
 
 /// A list shimmer for loading states
 class AppListShimmer extends StatelessWidget {
-
   const AppListShimmer({
     this.itemCount = 5,
     this.itemHeight = 80,

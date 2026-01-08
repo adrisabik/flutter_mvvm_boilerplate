@@ -9,7 +9,6 @@ enum AppDialogType { alert, confirm, custom }
 
 /// A dynamic dialog component with configurable type and actions.
 class AppDialog extends StatelessWidget {
-
   const AppDialog({
     this.title,
     this.message,
@@ -87,7 +86,8 @@ class AppDialog extends StatelessWidget {
   /// Shows a custom dialog with custom content
   static Future<T?> showCustom<T>(
     BuildContext context, {
-    required Widget content, String? title,
+    required Widget content,
+    String? title,
     bool isDismissible = true,
   }) {
     return showDialog<T>(

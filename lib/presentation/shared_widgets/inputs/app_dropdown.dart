@@ -6,7 +6,6 @@ enum AppDropdownSize { small, medium, large }
 
 /// A dynamic dropdown component with configurable size and styling.
 class AppDropdown<T> extends StatelessWidget {
-
   const AppDropdown({
     required this.items,
     required this.itemLabel,
@@ -53,9 +52,7 @@ class AppDropdown<T> extends StatelessWidget {
           labelText: label,
           hintText: hint,
           helperText: helperText,
-          prefixIcon: prefixIcon != null
-              ? Icon(prefixIcon)
-              : null,
+          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
           contentPadding: _contentPadding,
           isDense: size == AppDropdownSize.small,
         ),

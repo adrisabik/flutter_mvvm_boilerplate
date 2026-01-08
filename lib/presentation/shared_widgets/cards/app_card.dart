@@ -7,7 +7,6 @@ enum AppCardType { elevated, filled, outlined }
 
 /// A dynamic, reusable card component with configurable type and interaction.
 class AppCard extends StatelessWidget {
-
   const AppCard({
     required this.child,
     this.type = AppCardType.elevated,

@@ -10,7 +10,6 @@ enum AppAvatarShape { circle, rounded }
 
 /// A dynamic avatar component with configurable size, shape, and fallback.
 class AppAvatar extends StatelessWidget {
-
   const AppAvatar({
     this.imageUrl,
     this.name,
