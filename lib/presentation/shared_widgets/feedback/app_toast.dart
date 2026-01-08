@@ -77,11 +77,7 @@ class AppToast {
 
   /// Shows an info toast
   static void info(BuildContext context, String message) {
-    show(
-      context,
-      message: message,
-      icon: Icons.info_outline,
-    );
+    show(context, message: message, icon: Icons.info_outline);
   }
 
   static void _dismiss() {
@@ -91,7 +87,6 @@ class AppToast {
 }
 
 class _ToastWidget extends StatefulWidget {
-
   const _ToastWidget({
     required this.message,
     required this.type,

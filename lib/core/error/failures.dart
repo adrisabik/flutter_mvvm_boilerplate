@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 /// Base failure class for error handling.
 /// All failures should extend this class.
 abstract class Failure extends Equatable {
-
   const Failure({required this.message, this.code});
   final String message;
   final String? code;
@@ -14,7 +13,6 @@ abstract class Failure extends Equatable {
 
 /// Failure from server/network operations.
 class ServerFailure extends Failure {
-
   const ServerFailure({required super.message, super.code, this.statusCode});
   final int? statusCode;
 
@@ -29,7 +27,6 @@ class CacheFailure extends Failure {
 
 /// Failure from input validation.
 class ValidationFailure extends Failure {
-
   const ValidationFailure({
     required super.message,
     super.code,

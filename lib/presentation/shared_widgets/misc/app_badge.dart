@@ -9,7 +9,6 @@ enum AppBadgePosition { topRight, topLeft, bottomRight, bottomLeft }
 
 /// A dynamic badge component for notification counts or status dots.
 class AppBadge extends StatelessWidget {
-
   const AppBadge({
     required this.child,
     this.type = AppBadgeType.count,

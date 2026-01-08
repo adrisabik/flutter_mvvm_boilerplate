@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 
 /// A widget to display when an error occurs.
 class AppErrorWidget extends StatelessWidget {
-
   const AppErrorWidget({
     required this.message,
     this.onRetry,

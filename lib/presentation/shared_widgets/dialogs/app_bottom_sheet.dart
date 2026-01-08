@@ -7,7 +7,6 @@ enum AppBottomSheetHeight { auto, half, full }
 
 /// A dynamic bottom sheet component with configurable height and header.
 class AppBottomSheet extends StatelessWidget {
-
   const AppBottomSheet({
     required this.child,
     this.title,

@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 
 /// A widget to display when a list/content is empty.
 class AppEmptyState extends StatelessWidget {
-
   const AppEmptyState({
     required this.icon,
     required this.title,

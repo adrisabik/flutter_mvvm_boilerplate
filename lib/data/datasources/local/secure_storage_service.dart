@@ -3,7 +3,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Secure storage service for sensitive data like tokens.
 class SecureStorageService {
-
   SecureStorageService()
     : _storage = const FlutterSecureStorage(
         aOptions: AndroidOptions(encryptedSharedPreferences: true),

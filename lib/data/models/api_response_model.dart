@@ -5,7 +5,6 @@ part 'api_response_model.g.dart';
 /// Generic API response wrapper for consistent response handling.
 @JsonSerializable(genericArgumentFactories: true)
 class ApiResponse<T> {
-
   const ApiResponse({
     required this.success,
     this.message,
@@ -29,7 +28,6 @@ class ApiResponse<T> {
 /// Pagination metadata for list responses.
 @JsonSerializable()
 class ApiMeta {
-
   const ApiMeta({
     required this.currentPage,
     required this.lastPage,

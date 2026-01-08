@@ -14,14 +14,15 @@ lib/
 │   ├── config/                 # Environment & app configuration
 │   ├── constants/              # App-wide constants (durations, keys, regex)
 │   ├── di/                     # Dependency injection (GetIt + Injectable)
-│   ├── error/                  # Failure classes & exceptions
+│   ├── error/                  # Failures, exceptions, error boundary
 │   ├── extensions/             # Dart extensions (string, datetime, context)
-│   ├── network/                # Dio client & network utilities
+│   ├── network/                # Dio client, interceptors, connectivity
 │   │   └── interceptors/       # Auth, error interceptors
 │   ├── observer/               # BLoC observer for debugging
 │   ├── router/                 # GoRouter navigation with guards
+│   ├── session/                # Global session management
 │   ├── theme/                  # Theme & design tokens
-│   └── utils/                  # Utility functions (validators)
+│   └── utils/                  # Utility functions (validators, logger)
 │
 ├── domain/                     # Business logic layer
 │   ├── entities/               # Core business objects (Freezed)
@@ -30,8 +31,9 @@ lib/
 │       └── auth/               # Grouped by feature
 │
 ├── data/                       # Data layer
-│   ├── datasources/            # Local storage sources
-│   │   └── local/              # SecureStorage, Hive services
+│   ├── datasources/            # Data sources
+│   │   ├── local/              # SecureStorage, Hive services
+│   │   └── remote/             # API data sources
 │   ├── models/                 # DTOs with JSON serialization
 │   └── repositories/           # Repository implementations
 │
@@ -95,7 +97,11 @@ cd flutter_mvvm_boilerplate
 flutter pub get
 
 # Run code generation
+# Unix/Mac
 make gen
+
+# Windows (PowerShell)
+.\scripts\gen.ps1
 
 # Run the app
 flutter run
@@ -105,6 +111,8 @@ flutter run
 
 ## 🛠️ Build Commands
 
+### Unix/Mac (Makefile)
+
 | Command | Description |
 |---------|-------------|
 | `make gen` | Generate code (freezed, json_serializable, injectable) |
@@ -113,6 +121,221 @@ flutter run
 | `make test` | Run all tests |
 | `make format` | Format code |
 | `make clean` | Clean build artifacts |
+
+### Windows (PowerShell)
+
+| Command | Description |
+|---------|-------------|
+| `.\scripts\gen.ps1` | Generate code |
+| `.\scripts\watch.ps1` | Watch mode for code generation |
+| `.\scripts\analyze.ps1` | Run analysis & format code |
+| `.\scripts\test.ps1` | Run all tests |
+| `.\scripts\test.ps1 -Coverage` | Run tests with coverage |
+| `.\scripts\clean.ps1` | Clean and regenerate |
+| `.\scripts\run.ps1 -Flavor dev` | Run with flavor (dev/staging/prod) |
+| `.\scripts\build.ps1 -Flavor prod -Target apk` | Build APK/AppBundle |
+
+---
+
+## 🏭 Build Flavors
+
+This boilerplate supports multiple environments using `--dart-define`:
+
+### Running with Flavors
+
+```bash
+# Development
+flutter run --dart-define=FLAVOR=dev
+
+# Staging
+flutter run --dart-define=FLAVOR=staging
+
+# Production
+flutter run --dart-define=FLAVOR=prod
+```
+
+### Building with Flavors
+
+```bash
+# Build APK
+flutter build apk --release --dart-define=FLAVOR=prod
+
+# Build App Bundle
+flutter build appbundle --release --dart-define=FLAVOR=prod
+
+# Build iOS
+flutter build ios --release --dart-define=FLAVOR=prod
+```
+
+### Environment Configuration
+
+```dart
+// lib/core/config/env_config.dart
+
+// Environments are auto-detected from --dart-define
+// Or set manually:
+EnvConfig.current = EnvConfig.staging;
+
+// Access configuration
+print(EnvConfig.current.baseUrl);     // API URL
+print(EnvConfig.current.apiKey);      // API key
+print(EnvConfig.current.appName);     // App name
+print(EnvConfig.current.isDev);       // Is development?
+print(EnvConfig.current.enableLogging); // Logging enabled?
+```
+
+---
+
+## 🛡️ Error Handling
+
+### Global Error Boundary
+
+The app includes a global error boundary that:
+- Catches Flutter framework errors
+- Catches Dart errors and exceptions
+- Shows a user-friendly error screen in release mode
+- Logs errors appropriately
+
+```dart
+// Already configured in main.dart
+void main() {
+  ErrorBoundary.init();
+  ErrorBoundary.runGuarded(() {
+    runApp(const App());
+  });
+}
+```
+
+### Failure Types
+
+Type-safe error handling with `fpdart`'s `Either` type:
+
+```dart
+// lib/core/error/failures.dart
+
+abstract class Failure extends Equatable {
+  final String message;
+  final String? code;
+}
+
+// Available failure types:
+class ServerFailure extends Failure      // API/network errors (with statusCode)
+class CacheFailure extends Failure       // Local storage errors
+class ValidationFailure extends Failure  // Input validation (with fieldErrors map)
+class NetworkFailure extends Failure     // No internet connection
+class AuthFailure extends Failure        // Authentication errors
+class UnknownFailure extends Failure     // Unexpected errors
+
+// Usage in Repository
+Future<Either<Failure, User>> login(...) async {
+  try {
+    final response = await dioClient.post('/login', data: {...});
+    return Right(UserModel.fromJson(response.data).toEntity());
+  } on ServerException catch (e) {
+    return Left(ServerFailure(message: e.message));
+  }
+}
+```
+
+---
+
+## 🔐 Session Management
+
+Global session management using `SessionCubit`:
+
+```dart
+// Provided at app root in main.dart
+BlocProvider(
+  create: (_) => sl<SessionCubit>()..checkSession(),
+  child: const App(),
+)
+
+// Check if authenticated
+final isLoggedIn = context.read<SessionCubit>().state.isAuthenticated;
+
+// Get current user
+final user = context.read<SessionCubit>().state.user;
+
+// Listen for session changes
+BlocListener<SessionCubit, SessionState>(
+  listenWhen: (prev, curr) => curr.hasExpired || !curr.isAuthenticated,
+  listener: (context, state) => context.goNamed(RouteNames.login),
+  child: ...
+)
+
+// Handle login success
+context.read<SessionCubit>().onLoginSuccess(user);
+
+// Logout
+await context.read<SessionCubit>().logout();
+```
+
+---
+
+## 📶 Connectivity Monitoring
+
+Global connectivity monitoring using `ConnectivityCubit`:
+
+```dart
+// Provided at app root in main.dart
+BlocProvider(
+  create: (_) => sl<ConnectivityCubit>()..init(),
+  child: const App(),
+)
+
+// Check connectivity
+final isOnline = context.read<ConnectivityCubit>().state.isConnected;
+
+// Show "No Internet" banner
+BlocListener<ConnectivityCubit, ConnectivityState>(
+  listenWhen: (prev, curr) => prev.isConnected != curr.isConnected,
+  listener: (context, state) {
+    if (!state.isConnected) {
+      AppToast.error(context, 'No internet connection');
+    } else {
+      AppToast.success(context, 'Back online');
+    }
+  },
+  child: ...
+)
+```
+
+---
+
+## 📊 Data Layer Pattern
+
+### DTO with toEntity Pattern
+
+```dart
+// lib/data/models/user_model.dart
+@freezed
+class UserModel with _$UserModel {
+  const factory UserModel({
+    required String id,
+    required String email,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+  }) = _UserModel;
+
+  const UserModel._();
+
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
+
+  // Convert to domain entity
+  User toEntity() => User(
+    id: id,
+    email: email,
+    avatarUrl: avatarUrl,
+  );
+
+  // Create from domain entity
+  static UserModel fromEntity(User user) => UserModel(
+    id: user.id,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+  );
+}
+```
 
 ---
 
@@ -156,96 +379,6 @@ abstract class AppIconSize {
 Gap(AppSpacing.md)
 BorderRadius.circular(AppRadius.sm)
 Icon(Icons.home, size: AppIconSize.md)
-```
-
----
-
-## 🛡️ Error Handling
-
-Type-safe error handling with `fpdart`'s `Either` type:
-
-```dart
-// lib/core/error/failures.dart
-
-abstract class Failure extends Equatable {
-  final String message;
-  final String? code;
-}
-
-// Available failure types:
-class ServerFailure extends Failure      // API/network errors (with statusCode)
-class CacheFailure extends Failure       // Local storage errors
-class ValidationFailure extends Failure  // Input validation (with fieldErrors map)
-class NetworkFailure extends Failure     // No internet connection
-class AuthFailure extends Failure        // Authentication errors
-class UnknownFailure extends Failure     // Unexpected errors
-
-// Usage in Repository
-Future<Either<Failure, User>> login(...) async {
-  try {
-    final response = await dioClient.post('/login', data: {...});
-    return Right(UserModel.fromJson(response.data).toEntity());
-  } on DioException catch (e) {
-    return Left(ServerFailure(message: e.message ?? 'Server error'));
-  }
-}
-
-// Usage in BLoC
-final result = await loginUseCase(params);
-result.fold(
-  (failure) => emit(AuthState.error(failure.message)),
-  (user) => emit(AuthState.authenticated(user)),
-);
-```
-
----
-
-## 🔐 Example Feature: Authentication
-
-Complete auth flow is implemented as a reference:
-
-### Domain Layer
-```dart
-// Entity
-@freezed
-class User with _$User {
-  const factory User({
-    required String id,
-    required String email,
-    String? name,
-  }) = _User;
-}
-
-// Repository Interface
-abstract class AuthRepository {
-  Future<Either<Failure, User>> login({...});
-  Future<Either<Failure, void>> logout();
-}
-
-// Use Case
-class LoginUseCase extends UseCase<User, LoginParams> {
-  @override
-  Future<Either<Failure, User>> call(LoginParams params) {...}
-}
-```
-
-### Data Layer
-```dart
-// Repository Implementation
-class AuthRepositoryImpl implements AuthRepository {
-  final DioClient _dioClient;
-  final SecureStorageService _storageService;
-  // Handles API calls, token storage, error mapping
-}
-```
-
-### Presentation Layer
-```dart
-// BLoC with Freezed states
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final LoginUseCase _loginUseCase;
-  // Handles UI events, emits states
-}
 ```
 
 ---
@@ -309,6 +442,21 @@ AppToast.warning(context, 'Low battery');
 AppToast.info(context, 'New update available');
 ```
 
+### AppStatusHandler
+```dart
+BlocBuilder<MyCubit, MyState>(
+  builder: (context, state) {
+    return AppStatusHandler<List<Item>>(
+      status: state.status,
+      data: state.items,
+      failure: state.failure,
+      onRetry: () => context.read<MyCubit>().fetch(),
+      onSuccess: (items) => ListView.builder(...),
+    );
+  },
+)
+```
+
 ### Other Widgets
 | Widget | Purpose |
 |--------|---------|
@@ -320,6 +468,55 @@ AppToast.info(context, 'New update available');
 | `AppShimmer` | Skeleton loading placeholders |
 | `AppEmptyState` | Empty list state |
 | `AppErrorWidget` | Error state with retry |
+| `AppImage` | Unified image widget (network/asset/file/SVG) |
+| `AppRefreshable` | Pull-to-refresh wrapper |
+| `AppLoadingOverlay` | Full-screen loading overlay |
+
+---
+
+## 🔧 Core Utilities
+
+### Logger
+```dart
+import 'package:flutter_mvvm_boilerplate/core/utils/utils.dart';
+
+Log.d('Debug message');           // Debug (only in debug mode)
+Log.i('Info message');            // Info
+Log.w('Warning message');         // Warning
+Log.e('Error', error: e, stackTrace: stack);  // Error (always logged)
+```
+
+### Debouncer & Throttler
+```dart
+// Debounce search input
+final debouncer = Debouncer(milliseconds: 500);
+onChanged: (value) => debouncer.run(() => search(value));
+
+// Throttle scroll events
+final throttler = Throttler(milliseconds: 100);
+onScroll: () => throttler.run(() => updatePosition());
+
+// Clean up
+debouncer.dispose();
+throttler.dispose();
+```
+
+### Clipboard, Share, URL Launcher
+```dart
+// Clipboard
+await ClipboardUtils.copy('Text to copy');
+final text = await ClipboardUtils.paste();
+
+// Share
+await ShareUtils.shareText('Check out this app!');
+await ShareUtils.shareFile('/path/to/file.pdf');
+
+// URL Launcher
+await LaunchUtils.openUrl('https://example.com');
+await LaunchUtils.openEmail(to: 'support@example.com');
+await LaunchUtils.openPhone('+1234567890');
+await LaunchUtils.openMaps(latitude: 37.7749, longitude: -122.4194);
+```
 
 ---
 
@@ -355,25 +552,14 @@ lib/domain/usecases/products/get_products_usecase.dart
 // Model (DTO)
 lib/data/models/product_model.dart
 
+// Remote DataSource
+lib/data/datasources/remote/product_remote_datasource.dart
+
 // Repository Implementation
 lib/data/repositories/product_repository_impl.dart
 ```
 
-### 4. Register Dependencies
-```dart
-// lib/core/di/injection.dart
-void _registerRepositories() {
-  sl.registerLazySingleton<ProductRepository>(
-    () => ProductRepositoryImpl(sl(), sl()),
-  );
-}
-
-void _registerUseCases() {
-  sl.registerFactory(() => GetProductsUseCase(sl()));
-}
-```
-
-### 5. Add Route
+### 4. Add Route
 ```dart
 // lib/core/router/app_router.dart
 GoRoute(
@@ -396,18 +582,33 @@ flutter test --coverage
 
 # Run specific test
 flutter test test/presentation/auth/bloc/auth_bloc_test.dart
+
+# Windows PowerShell
+.\scripts\test.ps1
+.\scripts\test.ps1 -Coverage
+.\scripts\test.ps1 -Path test/domain/usecases/
 ```
 
 ### Test Structure
 ```
 test/
+├── core/
+│   └── utils/
+│       ├── validators_test.dart
+│       └── debouncer_test.dart
+├── data/
+│   └── repositories/
+│       └── auth_repository_impl_test.dart
+├── domain/
+│   └── usecases/
+│       └── login_usecase_test.dart
 ├── presentation/
 │   └── auth/bloc/
 │       └── auth_bloc_test.dart
-├── domain/usecases/
-│   └── login_usecase_test.dart
-└── data/repositories/
-    └── auth_repository_impl_test.dart
+└── helpers/
+    ├── mocks.dart
+    ├── fixtures.dart
+    └── test_app.dart
 ```
 
 ---
@@ -416,11 +617,11 @@ test/
 
 ### Environment Setup
 ```dart
-// lib/core/config/env_config.dart
-void main() {
-  EnvConfig.current = EnvConfig.dev;  // dev, staging, prod
-  runApp(const App());
-}
+// Automatic from --dart-define
+flutter run --dart-define=FLAVOR=prod
+
+// Or manual in main.dart
+EnvConfig.current = EnvConfig.prod;
 ```
 
 ### Theme Customization
@@ -431,6 +632,17 @@ static ThemeData get light => FlexThemeData.light(
   useMaterial3: true,
 );
 ```
+
+---
+
+## 📁 Project Structure Summary
+
+| Layer | Purpose | Key Patterns |
+|-------|---------|--------------|
+| **core/** | Shared infrastructure | DI, Error handling, Network, Theme |
+| **domain/** | Business logic | Entities, Repository interfaces, UseCases |
+| **data/** | Data access | DTOs (Models), DataSources, Repository impls |
+| **presentation/** | UI | Pages, Widgets, BLoCs/Cubits |
 
 ---
 

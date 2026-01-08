@@ -8,7 +8,6 @@ abstract class NetworkInfo {
 
 /// Implementation of NetworkInfo using connectivity_plus package.
 class NetworkInfoImpl implements NetworkInfo {
-
   NetworkInfoImpl(this._connectivity);
   final Connectivity _connectivity;
 
