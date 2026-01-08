@@ -8,4 +8,4 @@ Write-Host ""
 Write-Host "✨ Formatting code..." -ForegroundColor Cyan
 dart format lib test --set-exit-if-changed
 
-Write-Host "✅ Analysis & formatting complete!" -ForegroundColor Green
+Write-Host "✅ Analysis and formatting complete!" -ForegroundColor Green
